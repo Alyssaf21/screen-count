@@ -1,0 +1,317 @@
+<style>
+  body {
+    background-color: var(--figma-color-bg);
+    color: var(--figma-color-text);
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  h2 {
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+  }
+
+  #description,
+  #description>p {
+    font-size: 15px;
+    line-height: 140%;
+    letter-spacing: 0.05rem;
+    margin: 0;
+    font-weight: 300;
+  }
+
+  #instructions {
+    font-weight: 300;
+    padding-inline-start: 1rem;
+    margin: 0;
+  }
+
+  #instructions>* {
+    margin: 0.5rem 0 0;
+  }
+
+  #names-container {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    background-color: var(--figma-color-bg-secondary);
+    gap: 1rem;
+    border-radius: 1rem;
+  }
+
+  #names-wrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+    height: fit-content;
+  }
+
+  #names {
+    display: flex;
+    align-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .frame-name {
+    padding: .5rem;
+    background-color: var(--figma-color-bg-tertiary);
+    font-size: 0.9rem;
+    border-radius: 0.5rem;
+    display: flex;
+    flex-basis: auto;
+    width: fit-content;
+    letter-spacing: 0.05rem;
+  }
+
+  #clear-names {
+    font-size: 0.9rem;
+    width: fit-content;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    color: var(--figma-color-text-danger);
+    background-color: var(--figma-color-bg-secondary);
+    border: 2px solid var(--figma-color-border-danger);
+  }
+
+  #input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  input {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 8px;
+    border: 2px solid var(--figma-color-border-brand);
+    border-radius: 4px;
+    font-size: 1rem;
+    width: 100%;
+  }
+
+  input:focus-visible,
+  button:focus-visible {
+    outline: 3px solid var(--figma-color-border-brand-strong);
+  }
+
+  .input-label {
+    margin: 0;
+    font-size: 14px;
+    color: var(--figma-color-text-secondary);
+    font-weight: 300;
+  }
+
+  #text-box {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+  }
+
+  .button-section {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .button-wrapper {
+    display: flex;
+    /* flex-direction: row; */
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  button {
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .primary-button {
+    background-color: var(--figma-color-bg-brand);
+    color: var(--figma-color-text-onbrand);
+    flex-grow: 2;
+  }
+
+  .secondary-button {
+    background-color: var(--figma-color-bg-brand-secondary);
+    color: var(--figma-color-text-onbrand);
+  }
+
+  .cancel-button {
+    background-color: var(--figma-color-bg-tertiary);
+    color: var(--figma-color-text-onbrand);
+  }
+
+  button:hover {
+    outline: 2px solid var(--figma-color-border-brand-strong);
+  }
+
+  .error-msg {
+    color: var(--figma-color-text-danger);
+    font-size: 0.9rem;
+  }
+
+  .checkbox-wrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  .checkbox-wrapper>input {
+    width: fit-content;
+  }
+</style>
+
+<!-- <h2>Screen Numbers</h2> -->
+<div id="description">
+  <p>Updates numbering for screen labels based on position (top to bottom, left to right).</p>
+  <ol id="instructions">
+    <li>Add the name of the screen label component or frame below.</li>
+    <li>Select the frame that contains the labels you want renumbered.</li>
+    <li>Hit "Renumber"</li>
+  </ol>
+</div>
+
+<div id="names-container">
+  <div id="input-wrapper">
+    <p class="input-label">Component/Frame Name</p>
+    <div id="text-box"><input id="name" type="text" value="" placeholder="ie. Flow-number, Screen Label">
+      <button id="add" class="secondary-button">Add</button>
+    </div>
+    <div id="add-error-msg" class="error-msg"> </div>
+  </div>
+
+  <div id="names-wrapper">
+    <div id="names"></div>
+    <button id="clear-names"> Clear </button>
+  </div>
+</div>
+
+<div class="button-section">
+  <div id="renumber-error-msg" class="error-msg"> </div>
+  <div class="checkbox-wrapper">
+    <input type="checkbox" id="alphabetical" value="true"></input>
+    <label for="alphabetical">Letters (instead of numbers)</label>
+  </div>
+  <div class="checkbox-wrapper">
+    <input type="checkbox" id="append" value="true"></input>
+    <label for="append">Append (instead of replace)</label>
+  </div>
+  <div class="button-wrapper">
+    <button id="renumber" class="primary-button">Renumber</button>
+    <button id="cancel" class="cancel-button">Cancel</button>
+  </div>
+</div>
+<script>
+
+  let nameList = [];
+
+  function displayError(msg, container) {
+    let errorBox = document.getElementById(container);
+    errorBox.innerHTML = "";
+    if (msg == "clear") {
+      errorBox.style.display = "none";
+    } else {
+      let errorFeedback = document.createTextNode(msg);
+      errorBox.appendChild(errorFeedback);
+      errorBox.style.display = "inherit";
+    }
+  }
+
+  function validateNameInput(input, namesArray) {
+    let errorBox = document.getElementById("add-error-msg");
+    errorBox.innerHTML = "";
+    if (input == "") {
+      displayError("Please add a name", "add-error-msg");
+      return false;
+    }
+    else if (namesArray.includes(input)) {
+      displayError("This name already exists.", "add-error-msg");
+      return false;
+    } else {
+      displayError("clear", "add-error-msg");
+      return true;
+    }
+  }
+
+  function refreshNames(namesArray) {
+    for (name in namesArray) {
+      console.log("name: " + namesArray[name]);
+      let textnode = document.createTextNode(namesArray[name]);
+      let wrapper = document.getElementById('names');
+      let newName = document.createElement("div");
+      newName.classList.add("frame-name")
+      newName.appendChild(textnode);
+      wrapper.appendChild(newName);
+    }
+
+    if (namesArray.length == 0) {
+      document.getElementById('names-wrapper').style.display = "none";
+    } else {
+      document.getElementById('names-wrapper').style.display = "inherit";
+    }
+  }
+
+  onmessage = (event) => {
+    console.log("got this from the plugin code", event.data.pluginMessage)
+    if (event.data.pluginMessage == false) {
+      displayError("Please select a frame first.", "renumber-error-msg");
+    } else {
+      displayError("clear", "renumber-error-msg");
+      nameList = event.data.pluginMessage;
+      document.getElementById('names').innerHTML = "";
+      refreshNames(nameList);
+    }
+  }
+
+  document.getElementById('renumber').onclick = () => {
+    if (document.getElementById('names').innerHTML == "") {
+      displayError("Please add the name of the instance/frame that contains the screen numbers.", "renumber-error-msg")
+    } else {
+      if (document.getElementById('alphabetical').checked == true) {
+        if (document.getElementById('append').checked == true) {
+          parent.postMessage({ pluginMessage: { type: 'renumber', alphabetical: true, append: true } }, '*');
+        } else {
+          parent.postMessage({ pluginMessage: { type: 'renumber', alphabetical: true, append: false } }, '*');
+        }
+      } else if (document.getElementById('append').checked == true) {
+        parent.postMessage({ pluginMessage: { type: 'renumber', alphabetical: false, append: true } }, '*');
+      } else {
+        parent.postMessage({ pluginMessage: { type: 'renumber', alphabetical: false, append: false } }, '*');
+      }
+    }
+  }
+
+  document.getElementById('clear-names').onclick = () => {
+    parent.postMessage({ pluginMessage: { type: 'clear' } }, '*');
+    document.getElementById('names').innerHTML = "";
+    nameList = "";
+    refreshNames(nameList);
+  }
+
+  document.getElementById('add').onclick = () => {
+    const textbox = document.getElementById('name');
+    const name = textbox.value;
+    if (validateNameInput(name, nameList)) {
+      parent.postMessage({ pluginMessage: { type: 'add-name', name } }, '*');
+      refreshNames(nameList);
+      textbox.value = "";
+    }
+  }
+
+  document.getElementById('cancel').onclick = () => {
+    parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*');
+  }
+
+</script>
