@@ -135,6 +135,15 @@
     border: none;
     border-radius: 4px;
     font-weight: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+  
+  button:hover {
+    outline: 2px solid var(--figma-color-border-brand-strong);
   }
 
   .primary-button {
@@ -153,10 +162,6 @@
     color: var(--figma-color-text-onbrand);
   }
 
-  button:hover {
-    outline: 2px solid var(--figma-color-border-brand-strong);
-  }
-
   .error-msg {
     color: var(--figma-color-text-danger);
     font-size: 0.9rem;
@@ -170,6 +175,37 @@
 
   .checkbox-wrapper>input {
     width: fit-content;
+  }
+
+  .loader {
+    border: 0.2rem solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 0.2rem solid #3498db;
+    width: .75rem;
+    height: .75rem;
+    -webkit-animation: spin 1.25s linear infinite;
+    /* Safari */
+    animation: spin 1.25s linear infinite;
+  }
+
+  @-webkit-keyframes spin {
+    0% {
+      -webkit-transform: rotate(0deg);
+    }
+
+    100% {
+      -webkit-transform: rotate(360deg);
+    }
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
   }
 </style>
 
@@ -213,8 +249,8 @@
     <button id="cancel" class="cancel-button">Cancel</button>
   </div>
 </div>
-<script>
 
+<script>
   let nameList = [];
 
   function displayError(msg, container) {
@@ -267,7 +303,10 @@
     console.log("got this from the plugin code", event.data.pluginMessage)
     if (event.data.pluginMessage == false) {
       displayError("Please select a frame first.", "renumber-error-msg");
-    } else {
+    } else if (event.data.pluginMessage == "Complete") {
+      document.getElementById('renumber').innerHTML = "Renumber";
+    }
+    else {
       displayError("clear", "renumber-error-msg");
       nameList = event.data.pluginMessage;
       document.getElementById('names').innerHTML = "";
@@ -279,6 +318,11 @@
     if (document.getElementById('names').innerHTML == "") {
       displayError("Please add the name of the instance/frame that contains the screen numbers.", "renumber-error-msg")
     } else {
+      let btn = document.getElementById('renumber');
+      btn.innerHTML = "Renumbering..."
+      let spinner = document.createElement('div');
+      spinner.setAttribute('class', 'loader');
+      btn.appendChild(spinner);
       if (document.getElementById('alphabetical').checked == true) {
         if (document.getElementById('append').checked == true) {
           parent.postMessage({ pluginMessage: { type: 'renumber', alphabetical: true, append: true } }, '*');

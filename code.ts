@@ -124,6 +124,7 @@ const checkSelection = async () => { // Filters initial selection for frames and
       }
     }
     figma.notify("Screen labels have been renumbered!");
+    figma.ui.postMessage("Complete");
     figma.commitUndo();
   }
 }
@@ -149,7 +150,10 @@ figma.ui.onmessage = (msg: { type: string, name: string, alphabetical: boolean, 
   if (msg.alphabetical == true) { alphabeticalLabel = true; } else { alphabeticalLabel = false; }
   if (msg.append == true) { appendLabel = true; } else { appendLabel = false; }
   if (msg.type === 'add-name') { newName = msg.name; addNewName().then(() => { figma.ui.postMessage(nameList); }); }
-  if (msg.type === 'renumber') { resetArrays(); checkSelection(); };
+  if (msg.type === 'renumber') { 
+
+    resetArrays(); checkSelection(); 
+  };
   if (msg.type === 'clear') { clearClientStorage(); }
   if (msg.type === 'cancel') { figma.closePlugin(); }
 };
