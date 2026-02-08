@@ -116,7 +116,7 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.25rem;
   }
 
   .button-wrapper {
@@ -160,7 +160,7 @@
 
   .cancel-button {
     background-color: var(--figma-color-bg-tertiary);
-    color: var(--figma-color-text-onbrand);
+    color: var(--figma-color-text);
   }
 
   .error-msg {
@@ -168,11 +168,21 @@
     font-size: 0.9rem;
   }
 
+  .checkbox-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
   .checkbox-wrapper {
     font-size: 14px;
     display: flex;
     flex-direction: row;
     gap: 0.5rem;
+  }
+
+  .checkbox-wrapper>* {
+    cursor: pointer;
   }
 
   .checkbox-wrapper>input {
@@ -213,18 +223,18 @@
 
 <!-- <h2>Screen Numbers</h2> -->
 <div id="description">
-  <p>Updates numbering for screen labels based on position (top to bottom, left to right).</p>
+  <p>Updates numbering for screen labels based on position (Top > Left > Right > Bottom).</p>
   <ol id="instructions">
-    <li>Add the name of the screen label component or frame below.</li>
-    <li>Select the frame that contains the labels you want renumbered.</li>
-    <li>Hit "Renumber"</li>
+    <li>Add the name of the screen label frame/instance to the "Number Label" field below.</li>
+    <li>In Figma, select a frame or section that contains the labels you want renumbered.</li>
+    <li>Click "Renumber".</li>
   </ol>
 </div>
 
 <div id="names-container">
   <div id="input-wrapper">
-    <p class="input-label">Component/Frame Name</p>
-    <div id="text-box"><input id="name" type="text" value="" placeholder="ie. Flow-number, Screen Label">
+    <p class="input-label">Number Label (Layer Name)</p>
+    <div id="text-box"><input id="name" type="text" value="" placeholder="ex. Flow Label, Screen Number">
       <button id="add" class="secondary-button">Add</button>
     </div>
     <div id="add-error-msg" class="error-msg"> </div>
@@ -237,15 +247,17 @@
 </div>
 
 <div class="button-section">
+  <div class="checkbox-section">
+    <div class="checkbox-wrapper">
+      <input type="checkbox" id="alphabetical" value="true"></input>
+      <label for="alphabetical">Letters (instead of numbers)</label>
+    </div>
+    <div class="checkbox-wrapper">
+      <input type="checkbox" id="append" value="true"></input>
+      <label for="append">Append (instead of replace)</label>
+    </div>
+  </div>
   <div id="renumber-error-msg" class="error-msg"> </div>
-  <div class="checkbox-wrapper">
-    <input type="checkbox" id="alphabetical" value="true"></input>
-    <label for="alphabetical">Letters (instead of numbers)</label>
-  </div>
-  <div class="checkbox-wrapper">
-    <input type="checkbox" id="append" value="true"></input>
-    <label for="append">Append (instead of replace)</label>
-  </div>
   <div class="button-wrapper">
     <button id="cancel" class="cancel-button">Cancel</button>
     <button id="renumber" class="primary-button">Renumber</button>
@@ -258,7 +270,7 @@
   function displayError(msg, container) {
     let errorBox = document.getElementById(container);
     errorBox.innerHTML = "";
-    if (msg == "clear") {
+    if (msg == "hide") { // Hides the error message area on "clear"
       errorBox.style.display = "none";
     } else {
       let errorFeedback = document.createTextNode(msg);
@@ -267,7 +279,7 @@
     }
   }
 
-  function validateNameInput(input, namesArray) {
+  function validateNameInput(input, namesArray) { // Checks added label name for issues 
     let errorBox = document.getElementById("add-error-msg");
     errorBox.innerHTML = "";
     if (input == "") {
@@ -278,38 +290,49 @@
       displayError("This name already exists.", "add-error-msg");
       return false;
     } else {
-      displayError("clear", "add-error-msg");
+      displayError("hide", "add-error-msg");
       return true;
     }
   }
 
   function refreshNames(namesArray) {
-    for (name in namesArray) {
-      console.log("name: " + namesArray[name]);
-      let textnode = document.createTextNode(namesArray[name]);
-      let wrapper = document.getElementById('names');
-      let newName = document.createElement("div");
-      newName.classList.add("frame-name")
-      newName.appendChild(textnode);
-      wrapper.appendChild(newName);
-    }
-
-    if (namesArray.length == 0) {
+    let clearBtn = document.getElementById('clear-names');
+    if (namesArray.length == 0) { // If there are no label names, display message
+      displayError("Please add the name of the numbered frames/instances to begin.", "add-error-msg");
       document.getElementById('names-wrapper').style.display = "none";
-    } else {
+      clearBtn.style.display = "none";
+    } else { // Displays added label names to UI
+      for (name in namesArray) {
+        let textnode = document.createTextNode(namesArray[name]);
+        let wrapper = document.getElementById('names');
+        let newName = document.createElement("div");
+        newName.classList.add("frame-name")
+        newName.appendChild(textnode);
+        wrapper.appendChild(newName);
+      }
       document.getElementById('names-wrapper').style.display = "inherit";
+      clearBtn.style.display = "flex";
     }
   }
 
   onmessage = (event) => {
-    console.log("got this from the plugin code", event.data.pluginMessage)
-    if (event.data.pluginMessage == false) {
+    console.log("From the plugin code:", event.data.pluginMessage);
+    if (event.data.pluginMessage == "None Selected") { // User has not selected anything to renumber
       displayError("Please select a frame first.", "renumber-error-msg");
-    } else if (event.data.pluginMessage == "Complete") {
+      document.getElementById('renumber').innerHTML = "Renumber"; // Removes spinner
+    } else if (event.data.pluginMessage == "Complete") { // Plugin has run successfully
       document.getElementById('renumber').innerHTML = "Renumber";
+    } else if (event.data.pluginMessage == "None Found") { // No matches found
+      document.getElementById('renumber').innerHTML = "Renumber";
+    } else if (event.data.pluginMessage == "Names Cleared") { // Names have been cleared
+      console.log("Names Cleared");
+    }
+    else if (event.data.pluginMessage.length == 0) { // Happens when plugin starts up and no names exist
+      refreshNames(nameList);
     }
     else {
-      displayError("clear", "renumber-error-msg");
+      console.log("Updated list of names");
+      displayError("hide", "renumber-error-msg");
       nameList = event.data.pluginMessage;
       document.getElementById('names').innerHTML = "";
       refreshNames(nameList);
@@ -317,25 +340,21 @@
   }
 
   document.getElementById('renumber').onclick = () => {
-    if (document.getElementById('names').innerHTML == "") {
-      displayError("Please add the name of the instance/frame that contains the screen numbers.", "renumber-error-msg")
-    } else {
-      let btn = document.getElementById('renumber');
-      btn.innerHTML = "Renumbering..."
-      let spinner = document.createElement('div');
-      spinner.setAttribute('class', 'loader');
-      btn.appendChild(spinner);
-      if (document.getElementById('alphabetical').checked == true) {
-        if (document.getElementById('append').checked == true) {
-          parent.postMessage({ pluginMessage: { type: 'renumber', alphabetical: true, append: true } }, '*');
-        } else {
-          parent.postMessage({ pluginMessage: { type: 'renumber', alphabetical: true, append: false } }, '*');
-        }
-      } else if (document.getElementById('append').checked == true) {
-        parent.postMessage({ pluginMessage: { type: 'renumber', alphabetical: false, append: true } }, '*');
+    let btn = document.getElementById('renumber');
+    btn.innerHTML = "Renumbering..."
+    let spinner = document.createElement('div');
+    spinner.setAttribute('class', 'loader');
+    btn.appendChild(spinner);
+    if (document.getElementById('alphabetical').checked == true) {
+      if (document.getElementById('append').checked == true) {
+        parent.postMessage({ pluginMessage: { type: 'renumber', alphabetical: true, append: true } }, '*');
       } else {
-        parent.postMessage({ pluginMessage: { type: 'renumber', alphabetical: false, append: false } }, '*');
+        parent.postMessage({ pluginMessage: { type: 'renumber', alphabetical: true, append: false } }, '*');
       }
+    } else if (document.getElementById('append').checked == true) {
+      parent.postMessage({ pluginMessage: { type: 'renumber', alphabetical: false, append: true } }, '*');
+    } else {
+      parent.postMessage({ pluginMessage: { type: 'renumber', alphabetical: false, append: false } }, '*');
     }
   }
 
@@ -345,16 +364,28 @@
     nameList = "";
     refreshNames(nameList);
   }
-
-  document.getElementById('add').onclick = () => {
+  
+  function addClick() { // Split "Add name" into a function to allow the Enter key to activate it
     const textbox = document.getElementById('name');
     const name = textbox.value;
     if (validateNameInput(name, nameList)) {
       parent.postMessage({ pluginMessage: { type: 'add-name', name } }, '*');
       refreshNames(nameList);
       textbox.value = "";
+      displayError("hide", "add-error-msg");
     }
   }
+
+  document.getElementById('add').onclick = () => {
+    addClick();
+  }
+
+  const nameInput = document.getElementById('name');
+  nameInput.addEventListener('keypress', function(e){
+    if(e.key === 'Enter'){
+      addClick();
+    }
+  });
 
   document.getElementById('cancel').onclick = () => {
     parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*');
