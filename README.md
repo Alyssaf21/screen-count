@@ -1,4 +1,4 @@
-<img width="600" alt="image" src="https://github.com/user-attachments/assets/e82de5e7-d753-4cf3-b2f2-ead25c3215f6" />
+<img width="650" alt="Renumber Plugin - Cover" src="https://github.com/user-attachments/assets/b889e6a2-87df-4f35-9fa5-933e3859adb3" />
 <br> 
 
 ### Update screen numbers in an instant!
@@ -14,3 +14,8 @@ Just add the name of the label container, select the flow or frames you want to 
 Originally published as "Screen Count", renamed for clarity 🧛
 
 If you have any thoughts/suggestions/feedback, I'd love to chat! You can reach me at a.c.fusato@gmail.com
+
+<br>
+<img width="800" height="1080" alt="Renumber Plugin - Steps" src="https://github.com/user-attachments/assets/1698a5fa-0485-481f-9f37-422bab4af2a4" />
+
+<img width="800" height="1080" alt="Renumber Plugin - Notes" src="https://github.com/user-attachments/assets/4629ddc4-4a7f-4078-bc6a-aa9ec28139e9" />
