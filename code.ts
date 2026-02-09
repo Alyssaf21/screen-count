@@ -7,10 +7,7 @@ var appendLabel = false;
 
 const setNameList = async () => {
   nameList = await figma.clientStorage.getAsync("FrameNames"); 
-  if (nameList == undefined) { // Sets up client storage for first-time plugin users
-    await figma.clientStorage.setAsync("FrameNames", []);
-    nameList = [];
-  }
+  if (!nameList) { clearClientStorage(); }
 }
 
 function convertToLetter(n: number) {
