@@ -5,7 +5,13 @@ var filterednodes: SceneNode[] = [];
 var alphabeticalLabel = false;
 var appendLabel = false;
 
-const setNameList = async () => { nameList = await figma.clientStorage.getAsync("FrameNames"); }
+const setNameList = async () => {
+  nameList = await figma.clientStorage.getAsync("FrameNames"); 
+  if (nameList == undefined) { // Sets up client storage for first-time plugin users
+    await figma.clientStorage.setAsync("FrameNames", []);
+    nameList = [];
+  }
+}
 
 function convertToLetter(n: number) {
   if (n < 27) { let letter = (n + 9).toString(36).toUpperCase(); return letter; }
